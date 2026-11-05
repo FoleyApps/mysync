@@ -1,0 +1,142 @@
+/* mySync's website (design D13). Values come from design/system/tokens.json, dark-first with a full light theme. */
+:root {
+  color-scheme: dark light;
+  --bg: #111214;
+  --surface: #1b1c1f;
+  --surface-2: #26282c;
+  --stroke: rgba(255, 255, 255, 0.08);
+  --label: #e8eaed;
+  --label-secondary: #a9adb3;
+  --primary: #86b2fa;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-chip: 8px;
+  --radius-card: 20px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface-2: #eef0f3;
+    --stroke: rgba(17, 18, 20, 0.10);
+    --label: #1b1c1f;
+    --label-secondary: #5b6068;
+    --primary: #1763c6;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--label);
+  font: 400 17px/1.5 var(--font-sans);
+  letter-spacing: -0.2px;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+a { color: var(--primary); text-underline-offset: 2px; overflow-wrap: anywhere; }
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) 0;
+  color: var(--label);
+  font: 600 20px/25px var(--font-rounded);
+  text-decoration: none;
+}
+
+.brand img {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+}
+
+h1 {
+  margin: var(--space-4) 0 var(--space-3);
+  font: 600 30px/36px var(--font-rounded);
+  letter-spacing: 0.2px;
+}
+
+h2 {
+  margin: var(--space-8) 0 var(--space-2);
+  font: 600 20px/25px var(--font-sans);
+  letter-spacing: -0.45px;
+}
+
+h3 {
+  margin: 0 0 var(--space-1);
+  font: 600 17px/22px var(--font-sans);
+  letter-spacing: -0.43px;
+}
+
+p { margin: 0 0 var(--space-3); }
+ul { margin: 0 0 var(--space-3); padding-left: var(--space-5); }
+li { margin-bottom: var(--space-2); }
+li:last-child { margin-bottom: 0; }
+
+.lead { color: var(--label-secondary); }
+.meta { color: var(--label-secondary); font-size: 15px; line-height: 20px; }
+
+.hero-icon {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin-top: var(--space-4);
+  border-radius: 21px;
+}
+
+.card {
+  margin: var(--space-3) 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-card);
+}
+
+.card > :last-child { margin-bottom: 0; }
+
+.card .meta { margin-bottom: 0; }
+
+code {
+  padding: 1px 6px;
+  background: var(--surface-2);
+  border-radius: var(--radius-chip);
+  font: 400 15px/20px ui-monospace, "SF Mono", Menlo, monospace;
+  overflow-wrap: anywhere;
+}
+
+footer {
+  margin-top: var(--space-8);
+  padding: var(--space-6) 0 var(--space-8);
+  border-top: 1px solid var(--stroke);
+  color: var(--label-secondary);
+  font-size: 15px;
+  line-height: 20px;
+}
+
+footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+footer p { margin: 0; }
