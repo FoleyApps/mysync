@@ -21,7 +21,7 @@
       <div class="card">
         <h3>The short version</h3>
         <ul>
-          <li>Apple Intelligence reads your messages on your iPhone, unless you choose ChatGPT in Settings.</li>
+          <li>Apple Intelligence reads your messages on your iPhone, with Apple's on-device model only, never Private Cloud Compute or any model in the cloud.</li>
           <li>mySync has no servers, accounts, analytics or ads. Its developer never receives your messages, calendar or contacts.</li>
           <li>A few things do leave your iPhone, each for a reason listed below.</li>
         </ul>
@@ -41,6 +41,7 @@
 
       <h2>Where it's read</h2>
       <p>Apple Intelligence's on-device model reads your messages, and Apple's Vision framework reads the text in images, both on your iPhone. mySync doesn't use Private Cloud Compute or any model behind a server of its own.</p>
+      <p>If you choose the Local Model in Settings or in first run, mySync downloads it once from Hugging Face, which sends nothing of yours, and then reads your messages with it on your iPhone. Apple Intelligence stays the default.</p>
 
       <h2>What leaves your iPhone</h2>
       <div class="card">
@@ -56,12 +57,12 @@
         <p class="meta">An event's title, time, place and notes go into that calendar, and its notes carry a quote of at most 500 characters from the message and a link back. If the calendar syncs with a service such as iCloud, Google or Outlook, they go there too, and apps you allow into your calendar can see them. A reminder you add goes into Reminders with a link to mySync, not the message's words.</p>
       </div>
       <div class="card">
-        <h3>Your subscription, to Apple</h3>
-        <p class="meta">The App Store handles purchases and subscription status.</p>
+        <h3>Events you share, to whoever you send them</h3>
+        <p class="meta">Share puts an event's title, day and time, place and an online meeting's link in a message for you to send, never the message it came from. Its link opens this website's Add to Calendar page with the event in the part of the link after #, which the browser keeps on the phone that opens it and never sends to this site. Nothing goes until you tap Send.</p>
       </div>
       <div class="card">
-        <h3>Your messages, to OpenAI, only if you choose ChatGPT</h3>
-        <p class="meta">See "If you choose ChatGPT" below.</p>
+        <h3>Your subscription, to Apple</h3>
+        <p class="meta">The App Store handles purchases and subscription status.</p>
       </div>
 
       <h2>What stays on your iPhone</h2>
@@ -86,15 +87,6 @@
         <li><strong>The clipboard</strong>: iOS tells mySync whether what you copied looks like a plan, without mySync reading it. It's read only if you tap Paste.</li>
       </ul>
 
-      <h2>If you choose ChatGPT</h2>
-      <p>Apple Intelligence is the default. You can choose ChatGPT in Settings › Reading Model, and mySync asks first. With it chosen, mySync sends OpenAI, under your own OpenAI account or API key:</p>
-      <ul>
-        <li>each message's text, and up to 40 earlier texts from its conversation from the last 3 days;</li>
-        <li>who sent it, and the dates of the next two weeks;</li>
-        <li>for replies, the plan's words and the four draft replies.</li>
-      </ul>
-      <p>OpenAI handles these under your agreement with OpenAI and <a href="https://openai.com/policies/privacy-policy/">its privacy policy</a>. Your calendar, your plans and your accounts stay on your iPhone. Going back to Apple Intelligence or using Delete All Data removes your sign-in or key and stops anything more being sent.</p>
-
       <h2>What the developer receives</h2>
       <p>Nothing from the app. mySync has no servers, and it contains no analytics, advertising, attribution or crash-reporting code. It doesn't track you, and the developer doesn't sell or share your data.</p>
       <p>Apple gives every app's developer sales and download figures and overall usage statistics, and crash reports from people who turned on Share With App Developers in iOS Settings › Privacy &amp; Security › Analytics &amp; Improvements. They don't include your messages.</p>
@@ -106,7 +98,7 @@
         <li><strong>Delete everything</strong> with Settings › Delete All Data. It removes plans, history, quotes, connected accounts, the widget's and Messages app's files, and the encryption key. Events and reminders you've already added stay in your calendar and Reminders, where you can delete them yourself.</li>
         <li><strong>Before deleting the app</strong>, use Delete All Data, because iOS can keep Keychain items after an app is deleted. Deleting the app doesn't cancel a subscription.</li>
       </ul>
-      <p>The developer holds none of your messages, so there's nothing to request or erase from a server of ours. For a copy or deletion of what your email provider, calendar service, Apple or OpenAI holds, ask them. For any privacy question, write to <a href="mailto:mysync.support@gmail.com">mysync.support@gmail.com</a>.</p>
+      <p>The developer holds none of your messages, so there's nothing to request or erase from a server of ours. For a copy or deletion of what your email provider, calendar service or Apple holds, ask them. For any privacy question, write to <a href="mailto:mysync.support@gmail.com">mysync.support@gmail.com</a>.</p>
 
       <h2>Children</h2>
       <p>mySync isn't directed to children under 13, and it doesn't knowingly collect anyone's personal information.</p>

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add to your calendar</title>
+  <meta name="description" content="An event someone sent you with mySync. Add it to your calendar with one tap.">
+  <meta property="og:title" content="Add to your calendar">
+  <meta property="og:description" content="Tap to add this event to your calendar.">
+  <meta property="og:image" content="https://foleyapps.github.io/mysync/icon.png">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <style>
+    .event { margin-top: var(--space-6); }
+    .event h1 { margin-bottom: var(--space-2); overflow-wrap: anywhere; }
+    .event .when { font-size: 19px; margin: 0; }
+    .event .where { color: var(--label-secondary); margin: var(--space-1) 0 0; overflow-wrap: anywhere; }
+    .actions { display: flex; flex-direction: column; gap: var(--space-3); margin: var(--space-8) 0 var(--space-4); }
+    .button {
+      display: block; width: 100%; padding: 16px; border: 0; border-radius: 999px; cursor: pointer;
+      font: 600 19px/1.2 var(--font-rounded); text-align: center; text-decoration: none;
+    }
+    .button.primary { background: #007aff; color: #fff; }
+    .button.secondary { background: var(--surface-2); color: var(--label); }
+    .button:active { transform: scale(0.98); }
+    .hint { color: var(--label-secondary); font-size: 15px; text-align: center; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="brand" href="../index.html"><img src="../icon.png" alt="" width="32" height="32">mySync</a>
+    </header>
+    <main>
+      <section class="event" id="event" hidden>
+        <h1 id="title"></h1>
+        <p class="when" id="when"></p>
+        <p class="where" id="where" hidden></p>
+        <p class="where" id="meeting" hidden><a id="meeting-link" rel="noopener"></a></p>
+        <div class="actions">
+          <button class="button primary" id="add" type="button">Add to Calendar</button>
+          <a class="button secondary" id="google" rel="noopener">Google Calendar</a>
+        </div>
+        <p class="hint">Add to Calendar works with iPhone, Outlook and Android calendars.</p>
+      </section>
+      <section id="missing" hidden>
+        <h1>This link is missing its event</h1>
+        <p class="lead">Ask the person who sent it to share the event again.</p>
+      </section>
+    </main>
+    <footer>
+      <p>Sent with <a href="../index.html">mySync</a>. The event's details stay in this link on your phone: they're never sent to this site.</p>
+    </footer>
+  </div>
+  <script>
+    // The event rides in the link's #fragment, which the browser never sends to a server: base64url JSON with
+    // t (title), s and e (UTC "20261120T010000Z", or days "20261120" for an all-day event, its end the day after its last),
+    // l (place) and u (an online meeting's link), as mySync writes it (design D83).
+    function decode(fragment) {
+      try {
+        const value = new URLSearchParams(fragment.replace(/^#/, "")).get("e");
+        if (!value) return null;
+        const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+        const bytes = Uint8Array.from(atob(base64 + "===".slice((base64.length + 3) % 4)), c => c.charCodeAt(0));
+        const event = JSON.parse(new TextDecoder().decode(bytes));
+        const stamp = /^\d{8}(T\d{6}Z)?$/;
+        if (typeof event.t !== "string" || !stamp.test(event.s) || !stamp.test(event.e)) return null;
+        if (event.u && !/^https?:\/\//i.test(event.u)) delete event.u;
+        return event;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function date(stamp) {
+      const [y, m, d] = [stamp.slice(0, 4), stamp.slice(4, 6), stamp.slice(6, 8)].map(Number);
+      return stamp.length === 8 ? new Date(y, m - 1, d)
+        : new Date(Date.UTC(y, m - 1, d, Number(stamp.slice(9, 11)), Number(stamp.slice(11, 13)), Number(stamp.slice(13, 15))));
+    }
+
+    function when(event) {
+      const day = { weekday: "long", month: "long", day: "numeric" };
+      const time = { hour: "numeric", minute: "2-digit" };
+      const start = date(event.s), end = date(event.e);
+      if (start.getFullYear() !== new Date().getFullYear()) day.year = "numeric";
+      if (event.s.length === 8) {
+        const last = new Date(end.getFullYear(), end.getMonth(), end.getDate() - 1);
+        const first = start.toLocaleDateString(undefined, day);
+        return last > start ? `${first} – ${last.toLocaleDateString(undefined, day)}, all day` : `${first}, all day`;
+      }
+      const sameDay = start.toDateString() === end.toDateString();
+      return `${start.toLocaleDateString(undefined, day)}, ${start.toLocaleTimeString(undefined, time)} – `
+        + (sameDay ? "" : `${end.toLocaleDateString(undefined, day)}, `) + end.toLocaleTimeString(undefined, time);
+    }
+
+    function escaped(text) {
+      return text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+    }
+
+    // A line longer than 75 bytes, folded onto lines that start with a space, never inside a character.
+    function folded(line) {
+      const parts = [];
+      let current = "", limit = 75;
+      for (const character of line) {
+        if (new TextEncoder().encode(current + character).length > limit) { parts.push(current); current = ""; limit = 74; }
+        current += character;
+      }
+      parts.push(current);
+      return parts.join("\r\n ");
+    }
+
+    // The same invite mySync attaches to an email (RFC 5545): one published event, so no one is asked to answer anyone.
+    function iCalendar(event) {
+      const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+      const allDay = event.s.length === 8;
+      const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//mySync//mySync//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+        "BEGIN:VEVENT", `UID:${crypto.randomUUID ? crypto.randomUUID() : now + Math.random().toString(36).slice(2)}`, `DTSTAMP:${now}`,
+        allDay ? `DTSTART;VALUE=DATE:${event.s}` : `DTSTART:${event.s}`, allDay ? `DTEND;VALUE=DATE:${event.e}` : `DTEND:${event.e}`,
+        `SUMMARY:${escaped(event.t)}`];
+      if (event.l) lines.push(`LOCATION:${escaped(event.l)}`);
+      if (event.u) lines.push(`URL:${event.u}`, `DESCRIPTION:${escaped(event.u)}`);
+      lines.push("END:VEVENT", "END:VCALENDAR");
+      return lines.map(folded).join("\r\n") + "\r\n";
+    }
+
+    function fileName(title) {
+      const name = title.replace(/[\/\\:?%*|"<>\r\n]/g, " ").trim().replace(/^\.+|\.+$/g, "").slice(0, 60);
+      return (name || "Event") + ".ics";
+    }
+
+    function google(event) {
+      const parameters = new URLSearchParams({ action: "TEMPLATE", text: event.t, dates: `${event.s}/${event.e}` });
+      if (event.l) parameters.set("location", event.l);
+      if (event.u) parameters.set("details", event.u);
+      return "https://calendar.google.com/calendar/render?" + parameters.toString();
+    }
+
+    const event = decode(location.hash);
+    if (!event) {
+      document.getElementById("missing").hidden = false;
+    } else {
+      document.title = `${event.t}: add to your calendar`;
+      document.getElementById("title").textContent = event.t;
+      document.getElementById("when").textContent = when(event);
+      if (event.l) {
+        const where = document.getElementById("where");
+        where.textContent = event.l;
+        where.hidden = false;
+      }
+      if (event.u) {
+        const link = document.getElementById("meeting-link");
+        link.href = event.u;
+        link.textContent = event.u;
+        document.getElementById("meeting").hidden = false;
+      }
+      document.getElementById("google").href = google(event);
+      // A file the page makes itself: Safari shows it as an event with Add To Calendar on iOS 17, 26 and 27, without asking
+      // first, and Android and computers open it in their calendar.
+      document.getElementById("add").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([iCalendar(event)], { type: "text/calendar;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName(event.t);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      });
+      document.getElementById("event").hidden = false;
+    }
+  </script>
+</body>
+</html>
