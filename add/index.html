@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Add to your calendar</title>
-  <meta name="description" content="An event someone sent you with mySync. Add it to your calendar with one tap.">
+  <meta name="description" content="An event someone sent you with PlanFetch. Add it to your calendar with one tap.">
   <meta property="og:title" content="Add to your calendar">
   <meta property="og:description" content="Tap to add this event to your calendar.">
   <meta property="og:image" content="https://foleyapps.github.io/mysync/icon.png">
@@ -31,7 +31,7 @@
 <body>
   <div class="page">
     <header>
-      <a class="brand" href="../index.html"><img src="../icon.png" alt="" width="32" height="32">mySync</a>
+      <a class="brand" href="../index.html"><img src="../icon.png" alt="" width="32" height="32">PlanFetch</a>
     </header>
     <main>
       <section class="event" id="event" hidden>
@@ -51,13 +51,13 @@
       </section>
     </main>
     <footer>
-      <p>Sent with <a href="../index.html">mySync</a>. The event's details stay in this link on your phone: they're never sent to this site.</p>
+      <p>Sent with <a href="../index.html">PlanFetch</a>. The event's details stay in this link on your phone: they're never sent to this site.</p>
     </footer>
   </div>
   <script>
     // The event rides in the link's #fragment, which the browser never sends to a server: base64url JSON with
     // t (title), s and e (UTC "20261120T010000Z", or days "20261120" for an all-day event, its end the day after its last),
-    // l (place) and u (an online meeting's link), as mySync writes it (design D83).
+    // l (place) and u (an online meeting's link), as PlanFetch writes it (design D83).
     function decode(fragment) {
       try {
         const value = new URLSearchParams(fragment.replace(/^#/, "")).get("e");
@@ -111,11 +111,11 @@
       return parts.join("\r\n ");
     }
 
-    // The same invite mySync attaches to an email (RFC 5545): one published event, so no one is asked to answer anyone.
+    // The same invite PlanFetch attaches to an email (RFC 5545): one published event, so no one is asked to answer anyone.
     function iCalendar(event) {
       const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
       const allDay = event.s.length === 8;
-      const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//mySync//mySync//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+      const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//PlanFetch//PlanFetch//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
         "BEGIN:VEVENT", `UID:${crypto.randomUUID ? crypto.randomUUID() : now + Math.random().toString(36).slice(2)}`, `DTSTAMP:${now}`,
         allDay ? `DTSTART;VALUE=DATE:${event.s}` : `DTSTART:${event.s}`, allDay ? `DTEND;VALUE=DATE:${event.e}` : `DTEND:${event.e}`,
         `SUMMARY:${escaped(event.t)}`];
